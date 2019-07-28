@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "FridgeMobile",
-    "slug": "FridgeMobile",
+    "name": "FridgeApp",
+    "slug": "FridgeMobileApp",
     "privacy": "public",
     "sdkVersion": "33.0.0",
     "platforms": [

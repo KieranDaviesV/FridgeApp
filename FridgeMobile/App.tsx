@@ -1,21 +1,14 @@
-import React, { Component } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
-import BarcodeScanner from './src/component/BarcodeScanner';
+import React from './node_modules/@types/react';
+import { StyleSheet, Text, View } from 'react-native';
+import SearchField from './src/component/SearchField';
 
-export default class App extends Component {
-
-  render() {
-    return (<View
-      style={{
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'flex-end',
-      }}>
-      <BarcodeScanner />
-    </View >
-    );
-  }
-
+export default function App() {
+  return (
+    <View style={styles.container}>
+      <Text>Open up App.tsx to start working on your app!</Text>
+      <SearchField />
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({

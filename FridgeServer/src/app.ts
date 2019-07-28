@@ -1,5 +1,5 @@
 import express, { NextFunction, Request, Response } from "express";
-
+import foodRoute from "./routes/foodRoute";
 class App {
     public app: express.Application;
 
@@ -10,10 +10,8 @@ class App {
         this.routeNotFound();
     }
     // handles all application routes
-    private routeSetter = () => {
-        this.app.get("/1", (req: Request, res: Response) => {
-            res.send("Fridge app!");
-        });
+    private routeSetter = async () => {
+        this.app.use("/api/food", foodRoute);
     }
     private routeNotFound = () => {
         this.app.use((req: Request, res: Response, next: NextFunction) => {
