@@ -3,10 +3,13 @@ import json
 from .dcutils import result_to_array
 import os
 
-db_string = os.environ['DB_URL']
+db_string = "postgres://postgres:Xl9xKmIYpUJnYewXmRoD@fooddb.cd9uhxmvgzkm.eu-west-2.rds.amazonaws.com/postgres"
+#os.environ['DB_URL']
 
-#gets recipes that the user id is following
-def get_follower_recipes(user_id):
+# gets recipes that the user id is following
+
+
+def db_follower_recipes(user_id):
     db = create_engine(db_string)
     if user_id is None:
         raise Exception("user_id undefined")
@@ -24,6 +27,17 @@ def get_follower_recipes(user_id):
         result = result_to_array(result_set)
         return result
 
-    except expression as identifier:
-        raise Exception("Error")
-        
+    except Exception as identifier:
+        raise Exception("Error getting recipes")
+
+
+def db_follow_user(followee_id, follower_id):
+    db = create_engine(db_string)
+    if followee_id is None:
+        raise Exception("followee_id is undefined")
+    if follower_id is None:
+        raise Exception("follower_id is undefined")
+    db.execute(
+        text("INSERT INTO userfollowing (follower_id, followee_id) VALUES (:follower_id ,:followee_id)"),
+        follower_id=follower_id, followee_id=followee_id)
+    return "Added"

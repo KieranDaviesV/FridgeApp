@@ -21,3 +21,4 @@ __pycache__
 .serverless
 config.json
 node_modules
+test.py
