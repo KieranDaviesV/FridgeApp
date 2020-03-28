@@ -1,6 +1,6 @@
 import axios, { AxiosRequestConfig } from "axios";
 import request from "request";
-import { fatsecret } from "../config/fatsecret.config";
+// import { fatsecret } from "../config/fatsecret.config";
 
 export interface IToken {
     tokenType: string;
@@ -14,8 +14,8 @@ export const getFatSecret = (): Promise<IToken> => {
                 method: "POST",
                 url: "https://oauth.fatsecret.com/connect/token",
                 auth: {
-                    user: fatsecret.clientId,
-                    password: fatsecret.clientSecret
+                    // user: fatsecret.clientId,
+                    // password: fatsecret.clientSecret
                 },
                 headers: { "content-type": "application/json" },
                 form: {

@@ -1,0 +1,46 @@
+{
+    "recipeName": "",
+    "createdBy": "",
+    "ingredients": [
+        {
+            "name": "ingredient1",
+            "quantity": "40",
+            "measurement": ""
+        },
+        {
+            "name": "ingredient2",
+            "quantity": "40",
+            "measurement": ""
+        },
+        {
+            "name": "ingredient3",
+            "quantity": "40",
+            "measurement": ""
+        },
+        {
+            "name": "ingredient1",
+            "quantity": "40",
+            "measurement": ""
+        }
+    ],
+    "steps": [
+        {
+            "description": "",
+            "isTimer": true,
+            "context": {
+                "timerObj": 40000
+            }
+        },
+        {
+            "description": "",
+            "isChop": true,
+            "context": {
+                "chopObj":{
+                    "message": "chop finely"
+                }
+            }
+        }
+    ],
+    "isVegan": false,
+    "isVeggy": true
+}

@@ -10,7 +10,15 @@
         "object-literal-sort-keys": false,
         "interface-name":[true, "always-prefix"],
         "no-shadowed-variable": false,
-        "max-line-length": false
+        "max-line-length": false,
+        "variable-name": {
+            "options": [
+              "ban-keywords",
+              "check-format",
+              "allow-leading-underscore",
+              "allow-pascal-case"
+            ]
+          }
     },
     "rulesDirectory": []
 }
