@@ -1,25 +1,75 @@
+
+DROP TABLE users CASCADE;
 CREATE TABLE users(
     id BIGSERIAL NOT NULL PRIMARY KEY,
     first_name VARCHAR(20) NOT NULL,
     last_name VARCHAR(20) NOT NULL
 );
-
+DROP TABLE recipes CASCADE;
 CREATE TABLE recipes(
     id BIGSERIAL NOT NULL PRIMARY KEY,
     recipe_name VARCHAR(20) NOT NULL,
     recipe_description VARCHAR(20) NOT NULL
 );
-
+DROP TABLE userfollowing;
 CREATE TABLE userfollowing(
     id BIGSERIAL NOT NULL PRIMARY KEY,
-    follower_id BIGINT REFERENCES users(id),
-    followee_id BIGINT REFERENCES users(id)
+    follower_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    followee_id BIGINT REFERENCES users(id) ON DELETE CASCADE
 );
+
+DROP INDEX uf_follower_id;
+CREATE INDEX uf_follower_id ON userfollowing(follower_id);
+
+DROP INDEX uf_followee_id;
+CREATE INDEX uf_followee_id ON userfollowing(followee_id);
+
+DROP TABLE  recipefollowing;
 CREATE TABLE recipefollowing(
     id BIGSERIAL NOT NULL PRIMARY KEY,
-    follower_id BIGINT REFERENCES users(id),
-    recipe_id BIGINT REFERENCES recipes(id)
+    follower_id BIGINT REFERENCES users(id) ON DELETE CASCADE,
+    recipe_id BIGINT REFERENCES recipes(id) ON DELETE CASCADE
 );
+
+/*  checks if its themself
+    or if they are already following
+*/
+CREATE OR REPLACE FUNCTION check_user_follows()
+RETURNS TRIGGER AS
+$$
+BEGIN
+    IF NEW.followee_id = NEW.follower_id 
+    THEN RAISE Exception 'You cannot follow yourself';
+    ELSIF NEW.followee_id = (SELECT uf.followee_id FROM userfollowing uf
+                                WHERE uf.followee_id=NEW.followee_id AND uf.follower_id=NEW.follower_id)
+    THEN RAISE Exception 'You are already following this user';
+    END IF;
+    RETURN NEW;
+END;
+$$ LANGUAGE PLpgSQL;
+
+DROP TRIGGER IF EXISTS check_user_follow ON userfollowing;
+
+CREATE TRIGGER check_user_follow BEFORE INSERT ON userfollowing
+FOR EACH ROW EXECUTE PROCEDURE check_user_follows();
+
+/* Checks if the user is already following the recipe*/
+CREATE OR REPLACE FUNCTION check_recipe_follows()
+RETURNS TRIGGER AS 
+$$
+BEGIN
+    IF NEW.recipe_id = (SELECT rf.recipe_id FROM recipefollowing rf WHERE rf.recipe_id=NEW.recipe_id AND rf.follower_id=NEW.follower_id)
+    THEN RAISE Exception 'Already following recipe';
+    END IF;
+    RETURN NEW; 
+END;
+$$ LANGUAGE PLpgSQL;
+
+DROP TRIGGER IF EXISTS check_recipe_follows ON recipefollowing;
+
+
+CREATE TRIGGER check_recipe_follows BEFORE INSERT ON recipefollowing
+FOR EACH ROW EXECUTE PROCEDURE check_recipe_follows();
 
 INSERT INTO users(first_name, last_name) VALUES ('Kieran', 'Davies');
 INSERT INTO users(first_name, last_name) VALUES ('Launa', 'Ord');
@@ -31,9 +81,15 @@ INSERT INTO recipes(recipe_name, recipe_description) VALUES('food2', 'food2 food
 INSERT INTO userfollowing(follower_id, followee_id) VALUES(1,2);
 INSERT INTO userfollowing(follower_id, followee_id) VALUES(3,1);
 INSERT INTO userfollowing(follower_id, followee_id) VALUES(2,1);
+INSERT INTO userfollowing(follower_id, followee_id) VALUES(1,2);
+INSERT INTO userfollowing(follower_id, followee_id) VALUES(1,1);
+INSERT INTO userfollowing(follower_id, followee_id) VALUES(1,5);
 
 INSERT INTO recipefollowing(follower_id, recipe_id) VALUES(1,1);
 INSERT INTO recipefollowing(follower_id, recipe_id) VALUES(2,1);
+INSERT INTO recipefollowing(follower_id, recipe_id) VALUES(1,1);
+INSERT INTO recipefollowing(follower_id, recipe_id) VALUES(2,5);
+INSERT INTO recipefollowing(follower_id, recipe_id) VALUES(5,1);
 
 /* Gets the users which are following the ID you set */
  SELECT users.first_name FROM users JOIN userfollowing uf ON uf.follower_id=users.id WHERE uf.followee_id=1;

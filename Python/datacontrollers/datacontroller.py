@@ -31,13 +31,13 @@ def db_follower_recipes(user_id):
         raise Exception("Error getting recipes")
 
 
-def db_follow_user(followee_id, follower_id):
+def db_follow_user(followee_id, follower_id, follow_table):
     db = create_engine(db_string)
     if followee_id is None:
         raise Exception("followee_id is undefined")
     if follower_id is None:
         raise Exception("follower_id is undefined")
     db.execute(
-        text("INSERT INTO userfollowing (follower_id, followee_id) VALUES (:follower_id ,:followee_id)"),
+        text("INSERT INTO "+ follow_table +" (follower_id, followee_id) VALUES (:follower_id ,:followee_id)"),
         follower_id=follower_id, followee_id=followee_id)
     return "Added"
