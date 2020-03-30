@@ -65,7 +65,7 @@ functions:
   getFollowerRecipies:
     handler: handlers/recipes.users_followed_recipes
     events:
-      - http: 
+      - http:
           path: recipes/user/follows
           method: get
   followuser:
@@ -73,7 +73,13 @@ functions:
     events:
       - http:
           path: follow/user
-          method: get
+          method: put
+  createuser:
+    handler: handlers/users.create_user
+    events:
+      - http:
+          path: users/create
+          method: post
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

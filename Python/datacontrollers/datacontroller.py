@@ -4,7 +4,7 @@ from .dcutils import result_to_array
 import os
 
 db_string = "postgres://postgres:Xl9xKmIYpUJnYewXmRoD@fooddb.cd9uhxmvgzkm.eu-west-2.rds.amazonaws.com/postgres"
-#os.environ['DB_URL']
+# os.environ['DB_URL']
 
 # gets recipes that the user id is following
 
@@ -38,6 +38,19 @@ def db_follow_user(followee_id, follower_id, follow_table):
     if follower_id is None:
         raise Exception("follower_id is undefined")
     db.execute(
-        text("INSERT INTO "+ follow_table +" (follower_id, followee_id) VALUES (:follower_id ,:followee_id)"),
+        text("INSERT INTO " + follow_table +
+             " (follower_id, followee_id) VALUES (:follower_id ,:followee_id)"),
         follower_id=follower_id, followee_id=followee_id)
+    return "Added"
+
+
+def db_create_user(first_name, last_name):
+    db = create_engine(db_string)
+    if first_name is None:
+        raise Exception("first_name is undefined")
+    if last_name is None:
+        raise Exception("last_name is undefined")
+    db.execute(
+        text("INSERT INTO users (first_name, last_name) VALUES(:first_name, :last_name)"),
+        first_name=first_name, last_name=last_name)
     return "Added"

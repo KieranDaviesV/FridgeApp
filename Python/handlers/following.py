@@ -13,7 +13,7 @@ def follow_user(event, context):
         elif "follower_id" in event_query and "followee_id" in event_query:
             followee_id = event_query['followee_id']
             follower_id = event_query['follower_id']
-            results = db_follow_user(followee_id, follower_id)
+            results = db_follow_user(followee_id, follower_id, "userfollowing")
             response["body"] = json.dumps(
                 {"results": results, "message": "Started following user"})
         else:
