@@ -1,6 +1,6 @@
 from sqlalchemy import create_engine, text
 import json
-from .dcutils import result_to_array
+from .dcutils import result_to_array, join_array_to_parameters
 import os
 
 db_string = "postgres://postgres:Xl9xKmIYpUJnYewXmRoD@fooddb.cd9uhxmvgzkm.eu-west-2.rds.amazonaws.com/postgres"
@@ -54,3 +54,23 @@ def db_create_user(first_name, last_name):
         text("INSERT INTO users (first_name, last_name) VALUES(:first_name, :last_name)"),
         first_name=first_name, last_name=last_name)
     return "Added"
+
+
+def db_get_recipes_by_ingredients(ingredient_list):
+    db = create_engine(db_string)
+    value_string = ""
+    ing_length = len(ingredient_list)
+    ingredients_values = join_array_to_parameters(ingredient_list)
+    result_set = db.execute(
+        text("SELECT r.id FROM recipes r INNER JOIN recipeingredients ri " 
+             "ON r.id=ri.recipe_id INNER JOIN ingredients i ON ri.ingredient_id=i.id "
+             "AND i.ingredient_name IN ( " + ingredients_values + ") GROUP BY r.id HAVING " 
+             "COUNT(DISTINCT CASE  WHEN i.ingredient_name IN ( " + ingredients_values + ") THEN i.ingredient_name " 
+             "END) = "+ str(ing_length) + ";"
+             )
+    )
+    result = result_to_array(result_set)
+    return result
+
+
+#db_get_recipes_by_ingredients(['pepper'])

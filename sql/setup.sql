@@ -11,6 +11,21 @@ CREATE TABLE recipes(
     recipe_name VARCHAR(20) NOT NULL,
     recipe_description VARCHAR(20) NOT NULL
 );
+DROP TABLE ingredients CASCADE;
+CREATE TABLE ingredients(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    ingredient_name VARCHAR(25) NOT NULL,
+    ingredient_weight INT NOT NULL
+    CONSTRAINT ingredient_weight CHECK (ingredient_weight > 0)
+);
+DROP TABLE recipeingredients CASCADE;
+CREATE TABLE recipeingredients(
+    id BIGSERIAL NOT NULL PRIMARY KEY,
+    recipe_id BIGINT REFERENCES recipes(id) ON DELETE CASCADE,
+    ingredient_id BIGINT REFERENCES ingredients(id) ON DELETE CASCADE,
+    quantity FLOAT(2) NOT NULL
+    CONSTRAINT quantity CHECK (quantity > 0)
+);
 DROP TABLE userfollowing;
 CREATE TABLE userfollowing(
     id BIGSERIAL NOT NULL PRIMARY KEY,
@@ -78,6 +93,13 @@ INSERT INTO users(first_name, last_name) VALUES ('Raf', 'Blaze');
 INSERT INTO recipes(recipe_name, recipe_description) VALUES('food1', 'food1 food');
 INSERT INTO recipes(recipe_name, recipe_description) VALUES('food2', 'food2 food');
 
+INSERT INTO ingredients(ingredient_name, ingredient_weight) VALUES('tomato', 500);
+INSERT INTO ingredients(ingredient_name, ingredient_weight) VALUES('pepper', 450);
+
+INSERT INTO recipeingredients(recipe_id, ingredient_id,quantity) VALUES(1, 1, 1);
+INSERT INTO recipeingredients(recipe_id, ingredient_id,quantity) VALUES(2, 2, 0.5);
+
+
 INSERT INTO userfollowing(follower_id, followee_id) VALUES(1,2);
 INSERT INTO userfollowing(follower_id, followee_id) VALUES(3,1);
 INSERT INTO userfollowing(follower_id, followee_id) VALUES(2,1);
@@ -96,3 +118,25 @@ INSERT INTO recipefollowing(follower_id, recipe_id) VALUES(5,1);
 
 /* Gets any recipes that your followers have*/
  SELECT recipes.recipe_name FROM users JOIN userfollowing uf ON uf.follower_id=users.id JOIN recipefollowing rf ON rf.follower_id=users.id JOIN recipes ON recipes.id=rf.recipe_id WHERE uf.followee_id=1;
+
+/* Gets a recipe and all its ingredients*/
+ SELECT r.id , r.recipe_name, json_agg(ingredients) as ingredients FROM recipes r JOIN recipeingredients ri ON r.id=ri.recipe_id JOIN ingredients ON ingredients.id=ri.ingredient_id WHERE r.id=1 GROUP BY r.id;
+
+/*Get recipe that includes this ingredient*/
+ SELECT r.id, r.recipe_name FROM recipes r 
+ JOIN recipeingredients ri ON r.id=ri.recipe_id 
+ JOIN ingredients ON ingredients.id=ri.ingredient_id 
+ WHERE ingredients.ingredient_name='tomato';
+
+/*Search for the ingredients with multiple ingredients in them*/
+SELECT r.id FROM recipes r 
+INNER JOIN recipeingredients ri 
+ON r.id=ri.recipe_id
+INNER JOIN ingredients i 
+ON ri.ingredient_id=i.id
+AND i.ingredient_name IN ('tomato', 'pepper')
+GROUP BY r.id
+HAVING 
+    COUNT(DISTINCT CASE 
+            WHEN i.ingredient_name IN ('tomato', 'pepper') THEN i.ingredient_name
+        END) = 2;
